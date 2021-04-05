@@ -1,0 +1,51 @@
+<Window xmlns="https://github.com/avaloniaui"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:vm="using:VoiceChat.UI.ViewModels"
+		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+		x:Class="VoiceChat.UI.Views.MainWindow"
+		Icon="/Assets/avalonia-logo.ico"
+		Title="VoiceChat.UI">
+
+	<Design.DataContext>
+		<vm:MainWindowViewModel/>
+	</Design.DataContext>
+	<Grid>
+		<Grid.ColumnDefinitions >
+			<ColumnDefinition Width="auto"/>
+			<ColumnDefinition Width="*"/>
+		</Grid.ColumnDefinitions>
+
+		<Grid.RowDefinitions>
+			<RowDefinition Height="*"/>
+			<RowDefinition Height="10*"/>
+			<RowDefinition Height="5*"/>
+		</Grid.RowDefinitions>
+
+		<StackPanel Grid.Row="1" >
+			<TextBox Text="{Binding Client.UserName}"/>
+			<TextBox Text="{Binding VoiceClient.IP}"/>
+			<TextBlock Text="LOCALPORT"/>
+			<TextBox Text="{Binding VoiceClient.LOCALPORT}"/>
+			<TextBlock Text="REMOTEPORT"/>
+			<TextBox Text="{Binding VoiceClient.REMOTEPORT}"/>
+			<Button  Command="{Binding StartCommand}" Content="Присоединиться"/>
+			<Button Command="{Binding StopCommand}" Content="Выйти"/>
+		</StackPanel>
+		<TextBlock Text="Чат"  Grid.Column="1"   HorizontalAlignment="Center" VerticalAlignment="Top"/>
+		<ListBox Margin="5" Items="{Binding Client.Log}" Grid.Column="1" Grid.Row="1"  >
+		</ListBox>
+
+		<Border Grid.Row="2" Grid.ColumnSpan="3" >
+			<StackPanel Spacing="10" Orientation="Vertical">
+				<TextBox Text="{Binding Message}"/> 
+				<Button  Content="Отправить сообщение"
+								 HorizontalAlignment="Center"
+								 Command="{Binding SendMessageCommand}" IsDefault="True"/>
+			</StackPanel>
+		</Border>
+	</Grid>
+
+
+</Window>
