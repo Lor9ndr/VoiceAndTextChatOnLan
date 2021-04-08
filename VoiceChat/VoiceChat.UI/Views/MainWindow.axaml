@@ -24,7 +24,7 @@
 		</Grid.RowDefinitions>
 
 		<StackPanel Grid.Row="1" >
-			<TextBox Text="{Binding Client.UserName}"/>
+			<TextBox Text="{Binding TcpVoiceClient.Name}"/>
 			<TextBox Text="{Binding VoiceClient.IP}"/>
 			<TextBlock Text="LOCALPORT"/>
 			<TextBox Text="{Binding VoiceClient.LOCALPORT}"/>
@@ -32,12 +32,17 @@
 			<TextBox Text="{Binding VoiceClient.REMOTEPORT}"/>
 			<Button  Command="{Binding StartCommand}" Content="Присоединиться"/>
 			<Button Command="{Binding StopCommand}" Content="Выйти"/>
-		</StackPanel>
+      <TextBlock Text="Порог" />
+      <Slider  Value="{Binding VoiceClient.Threshold}" Maximum="0.03" Minimum="0"/>
+    </StackPanel>
 		<TextBlock Text="Чат"  Grid.Column="1"   HorizontalAlignment="Center" VerticalAlignment="Top"/>
-		<ListBox Margin="5" Items="{Binding Client.Log}" Grid.Column="1" Grid.Row="1"  >
-		</ListBox>
+    <StackPanel Grid.Column="1" Grid.Row="1" Orientation="Horizontal">
+      <ListBox Margin="5" Items="{Binding Client.Log}"/>
+      <ListBox Items="{Binding TcpServer.Clients}" />
 
-		<Border Grid.Row="2" Grid.ColumnSpan="3" >
+    </StackPanel>
+
+    <Border Grid.Row="2" Grid.ColumnSpan="3" >
 			<StackPanel Spacing="10" Orientation="Vertical">
 				<TextBox Text="{Binding Message}"/> 
 				<Button  Content="Отправить сообщение"

@@ -82,9 +82,9 @@ namespace VoiceChat
                     string message = Encoding.Unicode.GetString(data);
 
                     // добавляем полученное сообщение в текстовое поле
-                   
-                        string time = DateTime.Now.ToShortTimeString();
-                        Log.Add(time +':'+ UserName + ':' + message + "\r\n");
+
+                    string time = DateTime.Now.ToShortTimeString();
+                    Log.Add(time + ':' + UserName + ':' + message + "\r\n");
                 }
             }
             catch (ObjectDisposedException)
@@ -103,11 +103,12 @@ namespace VoiceChat
         {
             _currentMessage = " покидает чат";
             SendMessage(_currentMessage);
-            if (client != null)
+            try
             {
-                client.DropMulticastGroup(groupAddress);
-                client.Close();
+                client?.DropMulticastGroup(groupAddress);
+                client?.Close();
             }
+            catch { }
 
             alive = false;
             _disposed = true;

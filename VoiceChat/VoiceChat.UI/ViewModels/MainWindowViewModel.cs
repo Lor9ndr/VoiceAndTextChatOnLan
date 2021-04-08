@@ -24,6 +24,12 @@ namespace VoiceChat.UI.ViewModels
 
         [Reactive,DataMember]
         public Client Client { get; set; }
+
+        [Reactive,DataMember]
+        public VoiceTcpClient TcpVoiceClient { get; set; }
+        [Reactive]
+        public TcpServer TcpServer { get; set; }
+
         [Reactive, DataMember]
         public ClientUdpVoice VoiceClient { get; set; } 
         public ICommand StartCommand { get; set; }
@@ -44,8 +50,11 @@ namespace VoiceChat.UI.ViewModels
             WhenAnyValue
                 (x => x.IsConnected, (x) => x == true);
 
-            Client = new Client();
-            VoiceClient = new ClientUdpVoice();
+            TcpVoiceClient = new VoiceTcpClient();
+            TcpServer = new TcpServer();
+
+           /* Client = new Client();
+            VoiceClient = new ClientUdpVoice();*/
 
             StartCommand = ReactiveCommand.Create(Connect, canStart);
 
@@ -56,8 +65,17 @@ namespace VoiceChat.UI.ViewModels
         }
         public void Connect()
         {
-            Client.Connect();
-            VoiceClient.Process();
+            try
+            {
+                TcpVoiceClient.ConnectToServer("127.0.0.1", 8888);
+            }
+            catch
+            {
+                TcpServer.Start();
+                TcpVoiceClient.ConnectToServer("127.0.0.1", 8888);
+            }
+            /*Client.Connect();
+            VoiceClient.Process();*/
             IsConnected = true;
         }
 
