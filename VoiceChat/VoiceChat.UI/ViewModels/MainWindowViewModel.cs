@@ -67,12 +67,13 @@ namespace VoiceChat.UI.ViewModels
         {
             try
             {
-                TcpVoiceClient.ConnectToServer("127.0.0.1", 8888);
+                TcpVoiceClient.ConnectToServer("235.5.5.1", 8888);
             }
             catch
             {
                 TcpServer.Start();
-                TcpVoiceClient.ConnectToServer("127.0.0.1", 8888);
+                TcpVoiceClient.ConnectToServer("235.5.5.1", 8888);
+                TcpVoiceClient.IsAdmin = true;
             }
             /*Client.Connect();
             VoiceClient.Process();*/
@@ -95,7 +96,7 @@ namespace VoiceChat.UI.ViewModels
         public void Disconnect()
         {
             Client.Dispose();
-            VoiceClient.Dispose();
+            TcpServer.Dispose();
             IsConnected = false;
 
         }

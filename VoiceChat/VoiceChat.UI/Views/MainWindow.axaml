@@ -36,9 +36,9 @@
       <Slider  Value="{Binding VoiceClient.Threshold}" Maximum="0.03" Minimum="0"/>
     </StackPanel>
 		<TextBlock Text="Чат"  Grid.Column="1"   HorizontalAlignment="Center" VerticalAlignment="Top"/>
-    <StackPanel Grid.Column="1" Grid.Row="1" Orientation="Horizontal">
+    <StackPanel Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" Orientation="Horizontal">
       <ListBox Margin="5" Items="{Binding Client.Log}"/>
-      <ListBox Items="{Binding TcpServer.Clients}" />
+      <ListBox Items="{Binding TcpServer.Clients.Keys}" />
 
     </StackPanel>
 

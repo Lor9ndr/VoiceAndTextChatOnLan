@@ -14,7 +14,11 @@ namespace VoiceChat
         public string Name { get; set; } = "Admin";
         public TcpClient Client { get; set; } = new TcpClient();
 
+        public bool IsAdmin { get; set; } = false;
+
         private NetworkStream _stream;
+
+        Task _outputVoiceTask;
 
 
         #region NaudioThings
@@ -26,16 +30,17 @@ namespace VoiceChat
         {
             Client.Connect(ip, port);
             _stream = Client.GetStream();
-            byte[] name = Encoding.Unicode.GetBytes(Name);
-            _stream.Write(name, 0, name.Length);
             _input = new WaveIn();
             _output = new WaveOut();
+            byte[] name = Encoding.Unicode.GetBytes(Name);
+            _stream.Write(name, 0, name.Length);
+
             EnableVoice();
-            Task outputVoice = new Task(() =>
+            _outputVoiceTask = new Task(() =>
             {
                 GetOutputVoice();
             });
-            outputVoice.Start();
+            _outputVoiceTask.Start();
 
         }
         private void EnableVoice()
@@ -43,6 +48,7 @@ namespace VoiceChat
             _input.DeviceNumber = 0;
             _input.WaveFormat = new WaveFormat(44000, 16, 1);
             _input.DataAvailable += InputDataAvailable;
+            _input.StartRecording();
 
             _buffer = new BufferedWaveProvider(_input.WaveFormat);
             _output.Init(_buffer);
@@ -51,17 +57,27 @@ namespace VoiceChat
 
         private void InputDataAvailable(object sender, WaveInEventArgs e)
         {
+            byte[] name = Encoding.Unicode.GetBytes(Name);
+            _stream.Write(name, 0, name.Length);
             _stream.Write(e.Buffer, 0, e.Buffer.Length);
         }
         private void GetOutputVoice()
         {
-            byte[] data = new byte[3000];
-            do
+            _output.Play();
+            while (true)
             {
-                int bytes = _stream.Read(data, 0, data.Length);
-                _buffer.AddSamples(data, 0, bytes);
+                byte[] buf = new byte[1];
+                _stream.Read(buf);
+                _buffer.AddSamples(buf, 0, buf.Length);
+                buf = new byte[1];
             }
-            while (_stream.DataAvailable);
+        }
+        public void Disconnect()
+        {
+            _output.Dispose();
+            _input.Dispose();
+            Client.Dispose();
+            _outputVoiceTask.Dispose();
         }
         public override string ToString()
         {

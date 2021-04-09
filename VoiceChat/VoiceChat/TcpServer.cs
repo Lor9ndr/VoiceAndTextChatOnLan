@@ -9,14 +9,13 @@ using System.Threading.Tasks;
 
 namespace VoiceChat
 {
-    public class TcpServer
+    public class TcpServer:IDisposable
     {
         [Reactive]
-        public ObservableCollection<VoiceTcpClient> Clients { get; set; } = new ObservableCollection<VoiceTcpClient>();
-        private IPAddress _localaddr = IPAddress.Parse("127.0.0.1");
+        public Dictionary<VoiceTcpClient,NetworkStream> Clients { get; set; } = new Dictionary<VoiceTcpClient,NetworkStream>();
+        private IPAddress _localaddr = IPAddress.Parse("235.5.5.1");
         private int _port = 8888;
         private TcpListener _server;
-        private NetworkStream _stream;
         public void Start()
         {
             _server = new TcpListener(_localaddr, _port);
@@ -26,33 +25,47 @@ namespace VoiceChat
                 while (true)
                 {
                     TcpClient client = _server.AcceptTcpClient();
-                    _stream = client.GetStream();
-                    byte[] data = new byte[256]; // буфер для получаемых данных
+                    NetworkStream stream = client.GetStream();
+                    byte[] data = new byte[64]; // буфер для получаемых данных
                     StringBuilder builder = new StringBuilder();
                     int bytes = 0;
                     do
                     {
-                        bytes = _stream.Read(data, 0, data.Length);
+                        bytes = stream.Read(data, 0, data.Length);
                         builder.Append(Encoding.Unicode.GetString(data, 0, bytes));
                     }
-                    while (_stream.DataAvailable);
+                    while (stream.DataAvailable);
                     VoiceTcpClient voiceClient = new VoiceTcpClient
                     {
                         Name = builder.ToString(),
                         Client = client
                     };
-                    Clients.Add(voiceClient);
-                    data = new byte[3000]; // буфер для получаемых данных
-                    do
+                    Clients.Add(voiceClient, stream);
+                    data = new byte[1]; // буфер для получаемых данных и отправляемых данных
+                    while (true)
                     {
-                        bytes = _stream.Read(data, 0, data.Length);
-                        _stream.Write(data, 0, data.Length);
+                        stream.Read(data, 0, data.Length);
+                        foreach (var item in Clients)
+                        {
+                            if (item.Key.Name != voiceClient.Name)
+                                item.Value.Write(data, 0, data.Length);
+                        }
                     }
-                    while (_stream.DataAvailable);
+
                 }
 
             });
             accept.Start();
+        }
+        public void Dispose()
+        {
+            foreach (var client in Clients.Keys)
+            {
+                client.Disconnect();
+            }
+            _server.Stop();
+
+
         }
     }
 }
